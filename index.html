@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>포도알 공부 인증</title>
+<style>
+:root{
+  --bg:#faf7fb; --panel:#ffffff; --line:#e7e1ec; --line-soft:#f1ecf5;
+  --ink:#2a2233; --ink-mid:#6b6277; --ink-soft:#9b93a6;
+  --grape:#8b5cf6; --grape-deep:#6d3fd6; --grape-light:#c4b2f7;
+  --leaf:#4ca36a; --stem:#8b6b4a;
+  --gold:#e0a419; --danger:#d9534f; --ok:#3f9a5e;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(42,34,51,.05), 0 6px 20px rgba(42,34,51,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17141c; --panel:#1f1b27; --line:#332c3f; --line-soft:#262030;
+    --ink:#f0ecf5; --ink-mid:#b5aec2; --ink-soft:#817a8f;
+    --grape:#a78bfa; --grape-deep:#8b5cf6; --grape-light:#4a3a78;
+    --leaf:#5fb97e; --stem:#a07c55;
+    --gold:#f0b93b; --danger:#f08a86; --ok:#64c285;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17141c; --panel:#1f1b27; --line:#332c3f; --line-soft:#262030;
+  --ink:#f0ecf5; --ink-mid:#b5aec2; --ink-soft:#817a8f;
+  --grape:#a78bfa; --grape-deep:#8b5cf6; --grape-light:#4a3a78;
+  --leaf:#5fb97e; --stem:#a07c55;
+  --gold:#f0b93b; --danger:#f08a86; --ok:#64c285;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%; line-height:1.55;
+}
+.wrap{max-width:1040px; margin:0 auto; padding:24px 16px 80px}
+header.top{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px}
+header.top h1{font-size:20px; margin:0; letter-spacing:-.02em; display:flex; align-items:center; gap:8px}
+header.top .sub{color:var(--ink-soft); font-size:13px; margin-left:auto}
+
+nav.tabs{display:flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:4px; margin-bottom:20px; overflow-x:auto}
+nav.tabs button{
+  flex:1 0 auto; border:0; background:transparent; color:var(--ink-mid); cursor:pointer;
+  padding:9px 14px; border-radius:9px; font-size:14px; font-weight:600; white-space:nowrap;
+  font-family:inherit; transition:.15s;
+}
+nav.tabs button:hover{color:var(--ink); background:var(--line-soft)}
+nav.tabs button[aria-selected="true"]{background:var(--grape); color:#fff}
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); margin-bottom:16px}
+.card h2{font-size:15px; margin:0 0 4px; letter-spacing:-.01em}
+.card .hint{color:var(--ink-soft); font-size:13px; margin:0 0 16px}
+.card h2+.hint{margin-top:2px}
+
+button.btn{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer;
+  padding:9px 16px; border-radius:9px; font-size:14px; font-weight:600; font-family:inherit; transition:.15s;
+}
+button.btn:hover{border-color:var(--grape); color:var(--grape)}
+button.btn.primary{background:var(--grape); border-color:var(--grape); color:#fff}
+button.btn.primary:hover{background:var(--grape-deep); border-color:var(--grape-deep); color:#fff}
+button.btn.ghost{border-color:transparent; color:var(--ink-soft); padding:6px 10px}
+button.btn.ghost:hover{background:var(--line-soft); color:var(--ink)}
+button.btn.danger:hover{border-color:var(--danger); color:var(--danger)}
+button.btn:disabled{opacity:.45; cursor:not-allowed}
+button.btn.sm{padding:5px 11px; font-size:13px}
+.row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+#drop{
+  border:2px dashed var(--line); border-radius:var(--radius); padding:38px 20px; text-align:center;
+  cursor:pointer; transition:.18s; background:var(--panel);
+}
+#drop:hover,#drop.over{border-color:var(--grape); background:color-mix(in srgb,var(--grape) 6%,var(--panel))}
+#drop .big{font-size:34px; line-height:1}
+#drop .t{font-weight:700; margin-top:10px}
+#drop .s{color:var(--ink-soft); font-size:13px; margin-top:4px}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin:16px 0}
+.stat{background:var(--line-soft); border-radius:11px; padding:12px 14px}
+.stat .n{font-size:22px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px; color:var(--ink-soft); margin-top:1px}
+
+table{width:100%; border-collapse:collapse; font-size:14px}
+th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line-soft)}
+th{font-size:12px; color:var(--ink-soft); font-weight:700; text-transform:none}
+td.num{text-align:right; font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+select,input[type=text],input[type=number]{
+  font-family:inherit; font-size:14px; padding:7px 10px; border:1px solid var(--line);
+  border-radius:8px; background:var(--panel); color:var(--ink); max-width:100%;
+}
+select:focus,input:focus{outline:2px solid var(--grape); outline-offset:-1px; border-color:var(--grape)}
+label.check{display:flex; gap:9px; align-items:flex-start; font-size:14px; cursor:pointer; padding:7px 0}
+label.check input{margin:3px 0 0; accent-color:var(--grape); flex:0 0 auto}
+label.check .d{color:var(--ink-soft); font-size:12.5px; display:block; margin-top:1px}
+.field{margin-bottom:14px}
+.field>span{display:block; font-size:13px; font-weight:600; margin-bottom:5px}
+.field .d{color:var(--ink-soft); font-size:12.5px; font-weight:400; margin-top:4px}
+
+/* 포도밭 */
+.garden{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px}
+.bunch{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 10px 12px; text-align:center; box-shadow:var(--shadow); cursor:pointer; transition:.15s;
+}
+.bunch:hover{transform:translateY(-2px); border-color:var(--grape)}
+.bunch.done{border-color:var(--gold); background:color-mix(in srgb,var(--gold) 7%,var(--panel))}
+.bunch .nm{font-weight:700; font-size:14.5px; margin-top:8px; letter-spacing:-.01em}
+.bunch .ct{font-size:12.5px; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.bunch .ct b{color:var(--grape); font-size:15px}
+.bunch.done .ct b{color:var(--gold)}
+.bunch .badge{font-size:11px; font-weight:800; color:var(--gold); margin-top:3px}
+.bunch svg{display:block; margin:0 auto; overflow:visible}
+.bead{transition:.3s}
+.bead.on{animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{0%{transform:scale(.2); opacity:0}100%{transform:scale(1); opacity:1}}
+
+.empty{text-align:center; padding:46px 20px; color:var(--ink-soft)}
+.empty .big{font-size:40px; margin-bottom:10px}
+.pill{display:inline-block; font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:20px; background:var(--line-soft); color:var(--ink-mid)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 18%,transparent); color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--gold) 20%,transparent); color:var(--gold)}
+.note{font-size:13px; color:var(--ink-mid); background:var(--line-soft); padding:11px 13px; border-radius:10px; margin:12px 0 0}
+textarea{
+  width:100%; font-family:inherit; font-size:13.5px; line-height:1.6; padding:12px;
+  border:1px solid var(--line); border-radius:10px; background:var(--line-soft); color:var(--ink); resize:vertical;
+}
+dialog{
+  border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); color:var(--ink);
+  padding:20px; max-width:420px; width:calc(100% - 32px); box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+dialog::backdrop{background:rgba(20,16,26,.5)}
+dialog h3{margin:0 0 2px; font-size:16px}
+.daylist{max-height:230px; overflow-y:auto; margin:14px 0; border:1px solid var(--line-soft); border-radius:10px}
+.daylist div{display:flex; align-items:center; gap:10px; padding:7px 11px; border-bottom:1px solid var(--line-soft); font-size:13.5px}
+.daylist div:last-child{border-bottom:0}
+.daylist .src{color:var(--ink-soft); font-size:12px; margin-left:auto}
+#toast{
+  position:fixed; left:50%; bottom:26px; transform:translate(-50%,80px); opacity:0;
+  background:var(--ink); color:var(--bg); padding:11px 20px; border-radius:30px; font-size:14px;
+  font-weight:600; transition:.26s; pointer-events:none; z-index:99; max-width:90vw; text-align:center;
+}
+#toast.show{transform:translate(-50%,0); opacity:1}
+@media (max-width:560px){
+  .wrap{padding:16px 12px 70px}
+  .card{padding:16px}
+  .garden{grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px}
+  header.top .sub{margin-left:0; width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>🍇 포도알 공부 인증</h1>
+    <span class="sub" id="topSub"></span>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="up" aria-selected="true">📥 인증 집계</button>
+    <button role="tab" data-tab="garden" aria-selected="false">🍇 포도밭</button>
+    <button role="tab" data-tab="roster" aria-selected="false">👥 명단</button>
+    <button role="tab" data-tab="config" aria-selected="false">⚙️ 설정</button>
+  </nav>
+
+  <!-- 인증 집계 -->
+  <section id="tab-up">
+    <div class="card">
+      <h2>카톡 대화 파일 올리기</h2>
+      <p class="hint">오픈채팅방 → 우측 상단 메뉴 → 대화 내용 → <b>대화 내용 내보내기</b> → 텍스트 파일을 여기에 끌어다 놓으세요.</p>
+      <div id="drop" tabindex="0" role="button">
+        <div class="big">📄</div>
+        <div class="t">파일을 끌어다 놓거나 클릭해서 선택</div>
+        <div class="s">.txt / .csv · 파일은 이 기기 안에서만 처리됩니다</div>
+      </div>
+      <input type="file" id="file" accept=".txt,.csv,text/plain" hidden>
+    </div>
+
+    <div id="upResult" hidden></div>
+  </section>
+
+  <!-- 포도밭 -->
+  <section id="tab-garden" hidden>
+    <div class="card">
+      <div class="row" style="margin-bottom:4px">
+        <h2 style="margin:0">포도밭</h2>
+        <div class="row" style="margin-left:auto">
+          <select id="sortBy">
+            <option value="count">알 많은 순</option>
+            <option value="name">이름순</option>
+            <option value="recent">최근 인증순</option>
+          </select>
+          <button class="btn sm" id="btnNotice">📋 공지용 텍스트</button>
+        </div>
+      </div>
+      <p class="hint">학생 카드를 누르면 인증 날짜를 직접 고치거나 추가할 수 있습니다.</p>
+      <div id="gardenStats" class="stats"></div>
+      <div id="garden" class="garden"></div>
+    </div>
+  </section>
+
+  <!-- 명단 -->
+  <section id="tab-roster" hidden>
+    <div class="card">
+      <h2>학생 명단</h2>
+      <p class="hint">카톡 닉네임은 실명과 다를 수 있어서, 학생마다 <b>닉네임</b>을 등록해 둬야 집계가 붙습니다. 파일을 올리면 새 닉네임을 자동으로 찾아 줍니다.</p>
+      <div class="row" style="margin-bottom:14px">
+        <input type="text" id="newName" placeholder="학생 이름" style="flex:1; min-width:140px">
+        <button class="btn primary" id="btnAddStudent">학생 추가</button>
+      </div>
+      <div id="rosterBody"></div>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="tab-config" hidden>
+    <div class="card">
+      <h2>인증 규칙</h2>
+      <p class="hint">바꾸면 지금까지 올린 파일을 다시 올려서 재집계해야 반영됩니다 (중복은 안 쌓입니다).</p>
+      <div class="field">
+        <span>한 송이 = 몇 알</span>
+        <input type="number" id="cfgBeads" min="1" max="100" style="width:90px">
+        <div class="d">다 채우면 보상. 20알이면 평일 기준 한 달쯤 걸립니다.</div>
+      </div>
+      <div class="field">
+        <span>날짜 바뀌는 기준 시각</span>
+        <select id="cfgCutoff"></select>
+        <div class="d">이 시각 전에 올린 인증은 <b>전날 공부</b>로 칩니다. 새벽까지 공부한 학생이 손해 보지 않게 하는 장치입니다.</div>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="cfgKeyword">
+        <span>사진 없이 글로만 올린 인증도 인정
+          <span class="d">켜면 "인증", "완료" 같은 말이 들어간 메시지도 1알로 칩니다. 확인이 어려워져서 기본은 꺼둡니다.</span>
+        </span>
+      </label>
+      <div class="field" id="kwField" hidden style="margin-top:10px">
+        <span>인정할 낱말 (쉼표로 구분)</span>
+        <input type="text" id="cfgKeywords" style="width:100%">
+      </div>
+      <div class="field">
+        <span>집계 시작일 <span class="pill">선택</span></span>
+        <input type="text" id="cfgStart" placeholder="2026-10-01" style="width:140px">
+        <div class="d">비워두면 파일에 있는 모든 날짜를 집계합니다. 프로그램 시작일을 적으면 그 전 기록은 무시합니다.</div>
+      </div>
+      <button class="btn primary" id="btnSaveCfg">저장</button>
+    </div>
+
+    <div class="card">
+      <h2>구글 시트 연동 <span class="pill">선택</span></h2>
+      <p class="hint">시트에 올려 두면 학생이 <b>조회 페이지</b>에서 자기 포도송이를 직접 봅니다. 집계는 늘 이 브라우저에 먼저 저장되고 시트는 사본이라, 올리기가 실패해도 포도알은 그대로 남습니다.</p>
+      <div class="field">
+        <span>Apps Script 웹앱 URL</span>
+        <input type="text" id="cfgSheetUrl" placeholder="https://script.google.com/macros/s/..../exec" style="width:100%" autocomplete="off" spellcheck="false">
+        <div class="d">같은 폴더의 <b>AppsScript.gs</b> 맨 위 주석에 배포 방법이 적혀 있습니다. 주소는 <b>/exec</b> 로 끝나야 합니다.</div>
+      </div>
+      <div class="field">
+        <span>쓰기 키</span>
+        <input type="password" id="cfgSheetKey" placeholder="AppsScript.gs 의 WRITE_KEY" style="width:100%; max-width:320px" autocomplete="off">
+        <div class="d">Apps Script 안의 <b>WRITE_KEY</b> 와 똑같이 적으세요. 이 키가 있어야 시트에 쓸 수 있고, 학생 링크에는 들어가지 않습니다.</div>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="cfgAutoSync">
+        <span>포도밭에 반영할 때 시트에도 자동으로 올리기
+          <span class="d">파일을 올려 "포도밭에 반영하기"를 누르면 곧바로 시트까지 보냅니다. 실패하면 화면 위에 띠로 알려 드립니다.</span>
+        </span>
+      </label>
+      <div class="row" style="margin-top:6px">
+        <button class="btn primary" id="btnSaveSheet">저장</button>
+        <button class="btn" id="btnSyncCheck">연결 확인</button>
+      </div>
+      <div class="row" style="margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft)">
+        <button class="btn primary" id="btnSyncUp">⬆️ 시트로 올리기</button>
+        <button class="btn" id="btnStudentLink">🔗 학생 조회 링크 복사</button>
+        <button class="btn danger sm" id="btnSyncReplace" style="margin-left:auto">전체 덮어쓰기</button>
+      </div>
+      <p class="note" id="syncInfo"></p>
+      <p class="note"><b>시트로 올리기</b>는 새 인증만 덧붙입니다 — 같은 날짜는 시트에서도 중복되지 않습니다. 포도밭에서 <b>지운</b> 인증까지 시트에 반영하려면 <b>전체 덮어쓰기</b>를 쓰세요 (시트의 records를 이 브라우저 기록으로 맞춥니다).</p>
+    </div>
+
+    <div class="card">
+      <h2>백업 / 복원</h2>
+      <p class="hint">기록은 이 브라우저 안에만 저장됩니다. 기기를 바꾸거나 브라우저를 정리하기 전에 꼭 내보내 두세요.</p>
+      <div class="row">
+        <button class="btn" id="btnExport">💾 백업 파일 내보내기</button>
+        <button class="btn" id="btnImport">📂 백업 불러오기</button>
+        <button class="btn danger" id="btnReset" style="margin-left:auto">전체 초기화</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" hidden>
+      <p class="note" id="storageInfo"></p>
+    </div>
+  </section>
+</div>
+
+<dialog id="dlgStudent">
+  <h3 id="dlgName"></h3>
+  <p class="hint" id="dlgMeta" style="margin:2px 0 0; color:var(--ink-soft); font-size:13px"></p>
+  <div id="dlgReward"></div>
+  <div class="daylist" id="dlgDays"></div>
+  <div class="row">
+    <input type="text" id="dlgAddDate" placeholder="2026-10-18" style="flex:1; min-width:120px">
+    <button class="btn sm" id="dlgAdd">인증 추가</button>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <button class="btn" id="dlgClose" style="margin-left:auto">닫기</button>
+  </div>
+</dialog>
+
+<dialog id="dlgNotice">
+  <h3>공지용 텍스트</h3>
+  <p class="hint" style="margin:2px 0 12px; color:var(--ink-soft); font-size:13px">복사해서 오픈채팅방에 붙이면 학생들이 서로 진행 상황을 봅니다.</p>
+  <textarea id="noticeText" rows="12" readonly></textarea>
+  <div class="row" style="margin-top:12px">
+    <button class="btn primary" id="btnCopyNotice">복사</button>
+    <button class="btn" id="btnCloseNotice" style="margin-left:auto">닫기</button>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+/* ───────── 저장소 ───────── */
+const KEY = 'oreum-grape-v1';
+const DEFAULT_KEYWORDS = ['인증','공부','완료','끝','했어요','했습니다'];
+
+function blank(){
+  return {
+    config:{ beadsPerBunch:20, cutoffHour:3, allowKeyword:false, keywords:DEFAULT_KEYWORDS.slice(), startDate:'',
+             sheetUrl:'', sheetKey:'', autoSync:false },
+    students:[],          // {id,name,aliases:[]}
+    records:{},           // {studentId: {'2026-10-18': {src:'photo', at:'15:24'}}}
+    imports:[],           // {at,file,msgs,added}
+    seq:1
+  };
+}
+let S = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return blank();
+    const d = JSON.parse(raw);
+    const base = blank();
+    d.config = Object.assign(base.config, d.config||{});
+    d.students = d.students||[]; d.records = d.records||{}; d.imports = d.imports||[];
+    d.seq = d.seq||(d.students.length+1);
+    return d;
+  }catch(e){ return blank(); }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ toast('저장 실패 — 브라우저 저장공간을 확인하세요'); }
+}
+
+/* ───────── 작은 도구들 ───────── */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function normDate(s){
+  const m = String(s||'').trim().match(/^(\d{4})\D{1,2}(\d{1,2})\D{1,2}(\d{1,2})\D?$/);
+  if(!m) return null;
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  if(d.getFullYear()!=+m[1] || d.getMonth()!=+m[2]-1 || d.getDate()!=+m[3]) return null;
+  return ymd(d);
+}
+function beadCount(id){ return Object.keys(S.records[id]||{}).length; }
+function findStudentByAlias(nick){
+  const n = nick.trim();
+  return S.students.find(s => s.name===n || (s.aliases||[]).some(a=>a===n));
+}
+function lastDate(id){
+  const ks = Object.keys(S.records[id]||{});
+  return ks.length ? ks.sort().pop() : '';
+}
+
+/* ───────── 카톡 대화 파서 ───────── */
+const RE_SEP     = /^-{3,}\s*(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*.*?-{3,}\s*$/;
+const RE_FULL    = /^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*(오전|오후)\s*(\d{1,2}):(\d{2}),\s*(.+?)\s*:\s?([\s\S]*)$/;
+const RE_BRACKET = /^\[(.+?)\]\s*\[(오전|오후)\s*(\d{1,2}):(\d{2})\]\s?([\s\S]*)$/;
+const RE_PHOTO   = /^(사진|사진\s*\d+장|동영상|이미지|<사진>|<동영상>|음성메시지)$/;
+const RE_SKIP    = /(님이 (들어왔|나갔)습니다|삭제된 메시지입니다|^저장한 날짜|채팅방 관리자|운영원칙|방장이 |님을 내보냈습니다)/;
+
+function to24(ampm, h){
+  h = +h;
+  if(ampm==='오전') return h===12 ? 0 : h;
+  return h===12 ? 12 : h+12;
+}
+// "a","b","c" 한 줄 분해
+function csvFields(line){
+  const out=[]; let cur=''; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(q){
+      if(c==='"'){ if(line[i+1]==='"'){ cur+='"'; i++; } else q=false; }
+      else cur+=c;
+    }else{
+      if(c==='"') q=true;
+      else if(c===','){ out.push(cur); cur=''; }
+      else cur+=c;
+    }
+  }
+  out.push(cur); return out;
+}
+
+/** 대화 텍스트 → [{y,m,d,hh,mm,who,first,body}] */
+function parseKakao(text){
+  const lines = text.replace(/^﻿/,'').split(/\r?\n/);
+  const msgs = [];
+  let cur = null, curDate = null;
+
+  // PC CSV 내보내기 감지
+  const sample = lines.filter(l=>l.trim()).slice(0,6).join('\n');
+  if(/^"?Date"?\s*,/.test(sample) || /^"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"\s*,\s*"/.test(sample)){
+    for(const line of lines){
+      if(!line.trim()) continue;
+      const f = csvFields(line);
+      if(f.length < 3) continue;
+      const m = f[0].match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/);
+      if(!m) continue;                       // 헤더 줄 등
+      const body = f.slice(2).join(',');
+      msgs.push({ y:+m[1], m:+m[2], d:+m[3], hh:+m[4], mm:+m[5],
+                  who:f[1].trim(), first:body.split('\n')[0].trim(), body });
+    }
+    return msgs;
+  }
+
+  const push = () => { if(cur){ cur.body = cur.body.trim(); msgs.push(cur); cur = null; } };
+
+  for(const raw of lines){
+    const line = raw.replace(/\s+$/,'');
+    let m;
+
+    if((m = line.match(RE_SEP))){ push(); curDate = {y:+m[1], m:+m[2], d:+m[3]}; continue; }
+
+    if((m = line.match(RE_FULL))){
+      push();
+      cur = { y:+m[1], m:+m[2], d:+m[3], hh:to24(m[4],m[5]), mm:+m[6],
+              who:m[7].trim(), first:m[8].trim(), body:m[8] };
+      continue;
+    }
+    if(curDate && (m = line.match(RE_BRACKET))){
+      push();
+      cur = { y:curDate.y, m:curDate.m, d:curDate.d, hh:to24(m[2],m[3]), mm:+m[4],
+              who:m[1].trim(), first:m[5].trim(), body:m[5] };
+      continue;
+    }
+    // 그 밖의 줄: 직전 메시지의 두 번째 줄 이후 (first 는 건드리지 않음)
+    if(cur && line.trim() && !RE_SKIP.test(line)) cur.body += '\n' + line;
+  }
+  push();
+  return msgs;
+}
+
+/** 메시지 한 건이 인증인가 */
+function proofType(msg, cfg){
+  if(RE_SKIP.test(msg.first)) return null;
+  if(RE_PHOTO.test(msg.first)) return 'photo';
+  if(cfg.allowKeyword){
+    const t = msg.first;
+    if(cfg.keywords.some(k => k && t.includes(k))) return 'text';
+  }
+  return null;
+}
+
+/** 파싱된 메시지 → 닉네임별 귀속날짜 집합 */
+function aggregate(msgs, cfg){
+  const byNick = new Map();   // nick -> Map(date -> {src,at})
+  let proofs = 0;
+  for(const msg of msgs){
+    const src = proofType(msg, cfg);
+    if(!src) continue;
+    const dt = new Date(msg.y, msg.m-1, msg.d, msg.hh, msg.mm);
+    if(msg.hh < cfg.cutoffHour) dt.setDate(dt.getDate()-1);
+    const date = ymd(dt);
+    if(cfg.startDate && date < cfg.startDate) continue;
+    proofs++;
+    if(!byNick.has(msg.who)) byNick.set(msg.who, new Map());
+    const dm = byNick.get(msg.who);
+    if(!dm.has(date)) dm.set(date, {src, at:pad(msg.hh)+':'+pad(msg.mm)});
+  }
+  return {byNick, proofs};
+}
+
+/* ───────── 탭 ───────── */
+$$('nav.tabs button').forEach(b => b.addEventListener('click', ()=>{
+  $$('nav.tabs button').forEach(x => x.setAttribute('aria-selected', String(x===b)));
+  ['up','garden','roster','config'].forEach(t => { $('#tab-'+t).hidden = (t !== b.dataset.tab); });
+  if(b.dataset.tab==='garden') renderGarden();
+  if(b.dataset.tab==='roster') renderRoster();
+  if(b.dataset.tab==='config') renderConfig();
+}));
+
+/* ───────── 업로드 ───────── */
+let pending = null;   // {byNick, proofs, msgs, file}
+
+const drop = $('#drop');
+drop.addEventListener('click', ()=>$('#file').click());
+drop.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('#file').click(); } });
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e=>{ const f = e.dataTransfer.files[0]; if(f) readFile(f); });
+$('#file').addEventListener('change', e=>{ const f = e.target.files[0]; if(f) readFile(f); e.target.value=''; });
+
+function readFile(file){
+  const fr = new FileReader();
+  fr.onload = () => handleText(String(fr.result), file.name);
+  fr.onerror = () => toast('파일을 읽지 못했습니다');
+  fr.readAsText(file, 'UTF-8');
+}
+
+function handleText(text, fileName){
+  const msgs = parseKakao(text);
+  if(!msgs.length){
+    $('#upResult').hidden = false;
+    $('#upResult').innerHTML = `<div class="card"><h2>대화를 찾지 못했습니다</h2>
+      <p class="hint">카카오톡 <b>대화 내용 내보내기</b>로 만든 txt 파일인지 확인해 주세요. 파일 형식이 다르면 알려주시면 맞춰 드릴 수 있습니다.</p></div>`;
+    return;
+  }
+  const agg = aggregate(msgs, S.config);
+  pending = Object.assign(agg, {msgs, file:fileName});
+  renderUpResult();
+}
+
+function renderUpResult(){
+  const {byNick, proofs, msgs, file} = pending;
+  const known = [], unknown = [];
+  for(const [nick, dm] of byNick){
+    const st = findStudentByAlias(nick);
+    (st ? known : unknown).push({nick, dm, st});
+  }
+  known.sort((a,b)=>a.st.name.localeCompare(b.st.name,'ko'));
+  unknown.sort((a,b)=>b.dm.size-a.dm.size);
+
+  // 새로 채워질 알 수
+  let newBeads = 0;
+  for(const k of known){
+    const have = S.records[k.st.id] || {};
+    for(const d of k.dm.keys()) if(!have[d]) newBeads++;
+  }
+  const dates = [...new Set([].concat(...[...byNick.values()].map(m=>[...m.keys()])))].sort();
+
+  const opts = S.students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+
+  $('#upResult').hidden = false;
+  $('#upResult').innerHTML = `
+  <div class="card">
+    <h2>집계 결과 <span class="pill">${esc(file)}</span></h2>
+    <p class="hint">${dates.length ? `${dates[0]} ~ ${dates[dates.length-1]}` : '기간 없음'} · 메시지 ${msgs.length.toLocaleString()}건 중 인증 ${proofs}건</p>
+    <div class="stats">
+      <div class="stat"><div class="n">${byNick.size}</div><div class="l">인증한 사람</div></div>
+      <div class="stat"><div class="n">${known.length}</div><div class="l">명단에 있는 학생</div></div>
+      <div class="stat"><div class="n">${unknown.length}</div><div class="l">모르는 닉네임</div></div>
+      <div class="stat"><div class="n" style="color:var(--grape)">+${newBeads}</div><div class="l">새로 채워질 알</div></div>
+    </div>
+
+    ${unknown.length ? `
+    <h2 style="margin-top:22px">모르는 닉네임 ${unknown.length}명</h2>
+    <p class="hint">누구인지 지정하면 그 학생의 닉네임으로 등록됩니다. 비워두면 이번 집계에서 빠집니다.</p>
+    <table><thead><tr><th>카톡 닉네임</th><th class="num">인증</th><th style="width:46%">누구인가요</th></tr></thead><tbody>
+    ${unknown.map((u,i)=>`<tr>
+      <td><b>${esc(u.nick)}</b></td>
+      <td class="num">${u.dm.size}일</td>
+      <td>
+        <select data-nick="${esc(u.nick)}" class="mapSel" style="width:100%">
+          <option value="">— 건너뛰기 —</option>
+          <option value="__new">＋ 새 학생으로 등록 ("${esc(u.nick)}")</option>
+          ${opts}
+        </select>
+      </td></tr>`).join('')}
+    </tbody></table>` : ''}
+
+    ${known.length ? `
+    <h2 style="margin-top:22px">학생별 인증</h2>
+    <table><thead><tr><th>학생</th><th class="num">이번 파일</th><th class="num">새 알</th><th class="num">누적</th></tr></thead><tbody>
+    ${known.map(k=>{
+      const have = S.records[k.st.id]||{};
+      let add = 0; for(const d of k.dm.keys()) if(!have[d]) add++;
+      return `<tr><td>${esc(k.st.name)}${k.nick!==k.st.name?` <span class="pill">${esc(k.nick)}</span>`:''}</td>
+        <td class="num">${k.dm.size}일</td>
+        <td class="num" style="color:${add?'var(--grape)':'var(--ink-soft)'}">${add?'+'+add:'–'}</td>
+        <td class="num">${beadCount(k.st.id)} → <b>${beadCount(k.st.id)+add}</b></td></tr>`;
+    }).join('')}
+    </tbody></table>` : `<p class="note">명단에 등록된 학생이 아직 없습니다. 위에서 닉네임을 지정하거나 <b>명단</b> 탭에서 학생을 먼저 추가하세요.</p>`}
+
+    <div class="row" style="margin-top:20px">
+      <button class="btn primary" id="btnApply">포도밭에 반영하기</button>
+      <button class="btn ghost" id="btnCancelUp">취소</button>
+    </div>
+    <p class="note">같은 파일을 여러 번 올려도 하루 1알 규칙이라 중복으로 쌓이지 않습니다. 안심하고 반영하세요.</p>
+  </div>`;
+
+  $('#btnApply').addEventListener('click', applyPending);
+  $('#btnCancelUp').addEventListener('click', ()=>{ pending=null; $('#upResult').hidden=true; });
+}
+
+function applyPending(){
+  if(!pending) return;
+  // 1) 닉네임 매핑 반영
+  $$('.mapSel').forEach(sel=>{
+    const nick = sel.dataset.nick, v = sel.value;
+    if(!v) return;
+    if(v==='__new'){
+      const st = {id:'s'+(S.seq++), name:nick, aliases:[nick]};
+      S.students.push(st);
+    }else{
+      const st = S.students.find(s=>s.id===v);
+      if(st && !(st.aliases||[]).includes(nick)) (st.aliases = st.aliases||[]).push(nick);
+    }
+  });
+  // 2) 기록 반영
+  let added = 0, skipped = 0;
+  for(const [nick, dm] of pending.byNick){
+    const st = findStudentByAlias(nick);
+    if(!st){ skipped += dm.size; continue; }
+    const rec = S.records[st.id] = S.records[st.id] || {};
+    for(const [date, info] of dm){
+      if(!rec[date]){ rec[date] = info; added++; }
+    }
+  }
+  S.imports.push({at:new Date().toISOString(), file:pending.file, msgs:pending.msgs.length, added});
+  save();
+  pending = null; $('#upResult').hidden = true;
+  toast(added ? `포도알 ${added}개 채웠습니다 🍇` : '새로 채울 알이 없었습니다');
+  $$('nav.tabs button').find(b=>b.dataset.tab==='garden').click();
+  maybeAutoSync();
+}
+
+/* ───────── 포도밭 ───────── */
+function bunchRows(total){
+  const rows = []; let rem = total, wide = true;
+  while(rem > 0){
+    if(rem <= 4){ rows.push(rem); break; }
+    const w = wide ? 4 : 3;
+    rows.push(w); rem -= w; wide = !wide;
+  }
+  return rows;
+}
+function bunchSVG(count, total, animate){
+  const rows = bunchRows(total);
+  const R = 10, GX = 23, GY = 17, TOP = 22;
+  const W = 4*GX + 14, H = TOP + rows.length*GY + R + 6;
+  let out = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-label="포도알 ${count} / ${total}">`;
+  out += `<path d="M${W/2} ${TOP-4} C ${W/2-1} 12, ${W/2} 8, ${W/2+1} 3" stroke="var(--stem)" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  out += `<path d="M${W/2+1} 7 C ${W/2+13} -1, ${W/2+22} 4, ${W/2+16} 12 C ${W/2+11} 18, ${W/2+4} 15, ${W/2+1} 7 Z" fill="var(--leaf)"/>`;
+  let k = 0;
+  rows.forEach((w, ri)=>{
+    const startX = (W - (w-1)*GX)/2;
+    for(let i=0;i<w;i++,k++){
+      const cx = startX + i*GX, cy = TOP + ri*GY + R;
+      const on = k < count;
+      if(on){
+        out += `<g class="bead${animate?' on':''}" style="${animate?`animation-delay:${Math.min(k*28,700)}ms`:''}">`
+             + `<circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--grape)"/>`
+             + `<circle cx="${cx-3.2}" cy="${cy-3.4}" r="2.6" fill="#fff" opacity=".4"/></g>`;
+      }else{
+        out += `<circle class="bead" cx="${cx}" cy="${cy}" r="${R-1}" fill="none" stroke="var(--grape-light)" stroke-width="1.6" stroke-dasharray="2.6 2.6"/>`;
+      }
+    }
+  });
+  return out + '</svg>';
+}
+
+/** 학생 한 명의 진행 상황 — 한 송이를 채우면 다음 송이를 새로 시작한다 */
+function progress(st){
+  const total = S.config.beadsPerBunch;
+  const c = beadCount(st.id);
+  const earned = Math.floor(c/total);              // 자격을 얻은 송이 수
+  const rewarded = st.rewarded||0;                 // 실제로 보상을 준 송이 수
+  const pending = Math.max(0, earned-rewarded);    // 아직 못 준 보상
+  const inBunch = c - earned*total;                // 지금 송이에 찬 알
+  // 보상이 밀려 있으면 꽉 찬 송이를 그대로 보여 준다 (선생님이 놓치지 않도록)
+  return {c, total, earned, rewarded, pending, display: pending>0 ? total : inBunch};
+}
+
+let animateOnce = true;
+function renderGarden(){
+  const total = S.config.beadsPerBunch;
+  const list = S.students.slice();
+  const sort = $('#sortBy').value;
+  if(sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+  else if(sort==='recent') list.sort((a,b)=>(lastDate(b.id)||'').localeCompare(lastDate(a.id)||'') || a.name.localeCompare(b.name,'ko'));
+  else list.sort((a,b)=>beadCount(b.id)-beadCount(a.id) || a.name.localeCompare(b.name,'ko'));
+
+  const sum = list.reduce((a,s)=>a+beadCount(s.id),0);
+  const waiting = list.filter(s=>progress(s).pending>0).length;
+  const today = ymd(new Date()), yest = ymd(new Date(Date.now()-864e5));
+  const todayN = list.filter(s=>(S.records[s.id]||{})[today]).length;
+  const yestN  = list.filter(s=>(S.records[s.id]||{})[yest]).length;
+
+  $('#gardenStats').innerHTML = `
+    <div class="stat"><div class="n">${list.length}</div><div class="l">학생</div></div>
+    <div class="stat"><div class="n">${sum}</div><div class="l">전체 포도알</div></div>
+    <div class="stat"><div class="n" style="color:${waiting?'var(--gold)':'inherit'}">${waiting}</div><div class="l">보상 줄 학생</div></div>
+    <div class="stat"><div class="n">${todayN} <span style="font-size:13px;color:var(--ink-soft);font-weight:600">/ 어제 ${yestN}</span></div><div class="l">오늘 인증</div></div>`;
+
+  if(!list.length){
+    $('#garden').innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="big">🍇</div>학생이 아직 없습니다.<br><b>명단</b> 탭에서 추가하거나, 대화 파일을 올려 닉네임을 등록하세요.</div>`;
+    return;
+  }
+  $('#garden').innerHTML = list.map(s=>{
+    const p = progress(s);
+    return `<div class="bunch${p.pending?' done':''}" data-id="${s.id}" tabindex="0" role="button">
+      ${bunchSVG(p.display, total, animateOnce)}
+      <div class="nm">${esc(s.name)}</div>
+      <div class="ct"><b>${p.display}</b> / ${total}알${p.c>total?` <span style="color:var(--ink-soft); font-weight:600">· 누적 ${p.c}</span>`:''}</div>
+      ${p.pending ? `<div class="badge">🎁 보상 대기${p.pending>1?' '+p.pending+'송이':''}</div>`
+        : p.rewarded ? `<div class="badge" style="color:var(--ink-soft)">🍇 ${p.rewarded}송이 완성</div>` : ''}
+    </div>`;
+  }).join('');
+  animateOnce = false;
+  $$('.bunch').forEach(el=>{
+    el.addEventListener('click', ()=>openStudent(el.dataset.id));
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter'){ openStudent(el.dataset.id); } });
+  });
+}
+$('#sortBy').addEventListener('change', renderGarden);
+
+/* ───────── 학생 상세 ───────── */
+let dlgId = null;
+function openStudent(id){
+  dlgId = id;
+  const st = S.students.find(s=>s.id===id); if(!st) return;
+  const rec = S.records[id]||{}, dates = Object.keys(rec).sort().reverse();
+  const p = progress(st);
+  $('#dlgName').textContent = st.name;
+  $('#dlgMeta').innerHTML = `이번 송이 <b>${p.display}</b> / ${p.total}알 · 누적 ${p.c}알`
+    + (p.rewarded ? ` · 보상 ${p.rewarded}회 지급` : '')
+    + ((st.aliases||[]).length ? `<br>닉네임 ${st.aliases.map(a=>esc(a)).join(', ')}` : '');
+  $('#dlgReward').innerHTML = p.pending
+    ? `<p class="note" style="background:color-mix(in srgb,var(--gold) 15%,transparent); display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+         🎁 <b>한 송이 완성!</b> 보상 ${p.pending>1?p.pending+'개 ':''}줄 차례입니다.
+         <button class="btn sm primary" id="btnReward" style="margin-left:auto">보상 지급 완료</button></p>`
+    : '';
+  if(p.pending) $('#btnReward').addEventListener('click', ()=>{
+    st.rewarded = (st.rewarded||0)+1; save(); animateOnce=false;
+    openStudent(st.id); renderGarden(); toast(`${st.name} 보상 지급 기록 — 새 송이 시작!`);
+    maybeAutoSync();
+  });
+  $('#dlgDays').innerHTML = dates.length ? dates.map(d=>`
+    <div><span>${d}</span>
+      <span class="src">${rec[d].src==='photo'?'사진':'글'}${rec[d].at?' '+rec[d].at:''}</span>
+      <button class="btn ghost sm" data-del="${d}" title="삭제">✕</button></div>`).join('')
+    : `<div style="color:var(--ink-soft); justify-content:center">인증 기록이 없습니다</div>`;
+  $$('#dlgDays [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+    delete S.records[dlgId][b.dataset.del]; save(); openStudent(dlgId); renderGarden();
+  }));
+  $('#dlgAddDate').value = '';
+  $('#dlgStudent').showModal();
+}
+$('#dlgAdd').addEventListener('click', ()=>{
+  const d = normDate($('#dlgAddDate').value);
+  if(!d) return toast('날짜를 2026-10-18 형식으로 적어주세요');
+  const rec = S.records[dlgId] = S.records[dlgId]||{};
+  if(rec[d]) return toast('그 날짜는 이미 인증되어 있습니다');
+  rec[d] = {src:'manual', at:''};
+  save(); openStudent(dlgId); renderGarden(); toast('포도알 1개 추가');
+});
+$('#dlgClose').addEventListener('click', ()=>$('#dlgStudent').close());
+
+/* ───────── 명단 ───────── */
+function renderRoster(){
+  if(!S.students.length){
+    $('#rosterBody').innerHTML = `<div class="empty"><div class="big">👥</div>학생을 추가해 주세요.</div>`;
+    return;
+  }
+  const list = S.students.slice().sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+  $('#rosterBody').innerHTML = `<table>
+    <thead><tr><th>이름</th><th>카톡 닉네임</th><th class="num">포도알</th><th class="num">최근 인증</th><th></th></tr></thead>
+    <tbody>${list.map(s=>`<tr>
+      <td><input type="text" value="${esc(s.name)}" data-rename="${s.id}" style="width:100px"></td>
+      <td><input type="text" value="${esc((s.aliases||[]).join(', '))}" data-alias="${s.id}" placeholder="쉼표로 구분" style="width:100%; min-width:120px"></td>
+      <td class="num">${beadCount(s.id)}</td>
+      <td class="num" style="color:var(--ink-soft); font-size:13px">${lastDate(s.id)||'–'}</td>
+      <td><button class="btn ghost sm danger" data-rm="${s.id}">삭제</button></td>
+    </tr>`).join('')}</tbody></table>
+    <p class="note">이름·닉네임 칸은 고치면 바로 저장됩니다. 한 학생이 닉네임을 바꿨으면 쉼표로 둘 다 적어두세요.</p>`;
+
+  $$('[data-rename]').forEach(i=>i.addEventListener('change', ()=>{
+    const st = S.students.find(s=>s.id===i.dataset.rename);
+    const v = i.value.trim(); if(!v) return renderRoster();
+    st.name = v; save(); toast('저장했습니다');
+  }));
+  $$('[data-alias]').forEach(i=>i.addEventListener('change', ()=>{
+    const st = S.students.find(s=>s.id===i.dataset.alias);
+    st.aliases = i.value.split(',').map(x=>x.trim()).filter(Boolean);
+    save(); toast('저장했습니다');
+  }));
+  $$('[data-rm]').forEach(b=>b.addEventListener('click', ()=>{
+    const st = S.students.find(s=>s.id===b.dataset.rm);
+    if(!confirm(`${st.name} 학생을 삭제합니다. 포도알 ${beadCount(st.id)}개 기록도 함께 지워집니다.`)) return;
+    S.students = S.students.filter(s=>s.id!==st.id);
+    delete S.records[st.id]; save(); renderRoster(); toast('삭제했습니다');
+  }));
+}
+$('#btnAddStudent').addEventListener('click', addStudent);
+$('#newName').addEventListener('keydown', e=>{ if(e.key==='Enter') addStudent(); });
+function addStudent(){
+  const name = $('#newName').value.trim();
+  if(!name) return toast('이름을 적어주세요');
+  if(S.students.some(s=>s.name===name)) return toast('같은 이름이 이미 있습니다');
+  S.students.push({id:'s'+(S.seq++), name, aliases:[name]});
+  save(); $('#newName').value=''; renderRoster(); toast(`${name} 학생을 추가했습니다`);
+}
+
+/* ───────── 설정 ───────── */
+function renderConfig(){
+  const c = S.config;
+  $('#cfgBeads').value = c.beadsPerBunch;
+  $('#cfgCutoff').innerHTML = Array.from({length:9},(_,h)=>
+    `<option value="${h}"${h===c.cutoffHour?' selected':''}>${h===0?'자정 (0시)':'새벽 '+h+'시'}</option>`).join('');
+  $('#cfgKeyword').checked = !!c.allowKeyword;
+  $('#kwField').hidden = !c.allowKeyword;
+  $('#cfgKeywords').value = (c.keywords||[]).join(', ');
+  $('#cfgStart').value = c.startDate||'';
+  $('#cfgSheetUrl').value = c.sheetUrl||'';
+  $('#cfgSheetKey').value = c.sheetKey||'';
+  $('#cfgAutoSync').checked = !!c.autoSync;
+  renderSyncInfo();
+  const n = S.students.length, beads = S.students.reduce((a,s)=>a+beadCount(s.id),0);
+  $('#storageInfo').innerHTML = `지금 저장된 내용: 학생 ${n}명 · 포도알 ${beads}개 · 올린 파일 ${S.imports.length}개`
+    + (S.imports.length ? ` · 마지막 집계 ${new Date(S.imports[S.imports.length-1].at).toLocaleString('ko-KR')}` : '');
+}
+$('#cfgKeyword').addEventListener('change', e=>{ $('#kwField').hidden = !e.target.checked; });
+$('#btnSaveCfg').addEventListener('click', ()=>{
+  const b = parseInt($('#cfgBeads').value,10);
+  if(!(b>=1 && b<=100)) return toast('한 송이 알 수는 1~100 사이로 적어주세요');
+  const sd = $('#cfgStart').value.trim();
+  if(sd && !normDate(sd)) return toast('집계 시작일을 2026-10-01 형식으로 적어주세요');
+  S.config = Object.assign({}, S.config, {
+    beadsPerBunch: b,
+    cutoffHour: parseInt($('#cfgCutoff').value,10),
+    allowKeyword: $('#cfgKeyword').checked,
+    keywords: $('#cfgKeywords').value.split(',').map(x=>x.trim()).filter(Boolean),
+    startDate: sd ? normDate(sd) : ''
+  });
+  save(); renderConfig(); animateOnce = true; toast('저장했습니다');
+});
+
+/* ───────── 공지용 텍스트 ───────── */
+$('#btnNotice').addEventListener('click', ()=>{
+  const total = S.config.beadsPerBunch;
+  const list = S.students.slice().sort((a,b)=>beadCount(b.id)-beadCount(a.id) || a.name.localeCompare(b.name,'ko'));
+  if(!list.length) return toast('학생이 없습니다');
+  const today = ymd(new Date());
+  const lines = ['🍇 포도밭 현황 ('+today+')',''];
+  list.forEach((s,i)=>{
+    const p = progress(s);
+    const bar = '🟣'.repeat(p.display) + '⚪'.repeat(Math.max(0,total-p.display));
+    lines.push(`${p.pending?'🎉':(i+1)+'.'} ${s.name}  ${p.display}/${total}`
+      + (p.rewarded ? `  (완성 ${p.rewarded}송이)` : ''));
+    lines.push(`   ${bar}`);
+  });
+  const done = list.filter(s=>progress(s).pending>0);
+  lines.push('');
+  lines.push(done.length ? `🎉 한 송이 완성: ${done.map(s=>s.name).join(', ')} — 보상 받아가세요!` : `한 송이(${total}알) 채우면 보상이 있습니다. 오늘도 인증 올려주세요!`);
+  $('#noticeText').value = lines.join('\n');
+  $('#dlgNotice').showModal();
+});
+$('#btnCopyNotice').addEventListener('click', async ()=>{
+  const ta = $('#noticeText');
+  try{ await navigator.clipboard.writeText(ta.value); toast('복사했습니다 — 채팅방에 붙여넣으세요'); }
+  catch(e){ ta.removeAttribute('readonly'); ta.select(); document.execCommand('copy'); ta.setAttribute('readonly',''); toast('복사했습니다'); }
+});
+$('#btnCloseNotice').addEventListener('click', ()=>$('#dlgNotice').close());
+
+/* ───────── 구글 시트 동기화 ─────────
+   localStorage 가 1차 저장소이고 시트는 사본입니다.
+   네트워크가 실패해도 포도알은 이 브라우저에 그대로 남습니다. */
+
+function sheetCfg(){
+  return { url:String(S.config.sheetUrl||'').trim(), key:String(S.config.sheetKey||'').trim() };
+}
+/** 기록 전체를 시트 행 모양으로 */
+function recordRows(){
+  const out = [];
+  for(const st of S.students){
+    const rec = S.records[st.id]||{};
+    for(const date of Object.keys(rec).sort()){
+      out.push({studentId:st.id, date, src:rec[date].src||'photo', at:rec[date].at||''});
+    }
+  }
+  return out;
+}
+function syncPayload(mode){
+  return {
+    key: sheetCfg().key,
+    mode,
+    config: { beadsPerBunch: S.config.beadsPerBunch },
+    students: S.students.map(s=>({id:s.id, name:s.name, aliases:s.aliases||[], rewarded:s.rewarded||0})),
+    records: recordRows()
+  };
+}
+
+/** 화면 위 띠 — 성공/실패를 탭과 상관없이 보이게 */
+function syncBanner(kind, html){
+  let el = $('#syncBanner');
+  if(!html){ if(el) el.remove(); return; }
+  if(!el){ el = document.createElement('div'); el.id='syncBanner'; $('nav.tabs').after(el); }
+  const color = kind==='err' ? 'var(--danger)' : kind==='ok' ? 'var(--ok)' : 'var(--grape)';
+  el.style.cssText = `background:color-mix(in srgb,${color} 13%,var(--panel)); border:1px solid ${color};`
+    + 'color:var(--ink); border-radius:12px; padding:12px 15px; margin-bottom:16px; font-size:13.5px;'
+    + 'line-height:1.6; display:flex; gap:10px; align-items:flex-start';
+  el.innerHTML = `<div style="flex:1">${html}</div><button class="btn ghost sm" id="syncBannerX" style="flex:0 0 auto">✕</button>`;
+  $('#syncBannerX').addEventListener('click', ()=>el.remove());
+}
+
+function renderSyncInfo(){
+  const el = $('#syncInfo'); if(!el) return;
+  const c = sheetCfg(), ls = S.lastSync;
+  if(!c.url){
+    el.innerHTML = '아직 연결되지 않았습니다. 위 두 칸을 채우고 <b>저장</b>을 누르세요.';
+    return;
+  }
+  let s = `올릴 내용: 학생 ${S.students.length}명 · 인증 ${recordRows().length}행`;
+  if(!c.key) s += `<br><b style="color:var(--gold)">쓰기 키가 비어 있습니다</b> — 올리기는 안 되고 조회만 됩니다.`;
+  if(ls && ls.ok) s += `<br>마지막 올리기 ${new Date(ls.at).toLocaleString('ko-KR')} — 시트에 ${ls.records}행`;
+  else if(ls && ls.ok===false) s += `<br><b style="color:var(--danger)">마지막 올리기 실패</b> (${new Date(ls.at).toLocaleString('ko-KR')})<br>${esc(ls.error||'')}`;
+  el.innerHTML = s;
+}
+
+function setSyncBusy(on){
+  ['#btnSyncUp','#btnSyncReplace','#btnSyncCheck'].forEach(sel=>{ const b=$(sel); if(b) b.disabled = on; });
+  const b = $('#btnSyncUp');
+  if(b) b.textContent = on ? '⏳ 올리는 중…' : '⬆️ 시트로 올리기';
+}
+
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove(); return ok;
+    }catch(e2){ return false; }
+  }
+}
+
+let syncing = false;
+/** mode: 'merge'(새 인증만 덧붙이기) | 'replace'(시트를 이 기록으로 맞추기) */
+async function syncUp(mode, quiet){
+  const c = sheetCfg();
+  if(!c.url){ if(!quiet) toast('먼저 웹앱 URL을 저장하세요'); return null; }
+  if(!c.key){ if(!quiet) toast('먼저 쓰기 키를 저장하세요'); return null; }
+  if(!S.students.length){ if(!quiet) toast('올릴 학생이 없습니다'); return null; }
+  if(syncing) return null;
+
+  syncing = true; setSyncBusy(true); syncBanner(null);
+  try{
+    const res = await fetch(c.url, {
+      method:'POST',
+      // text/plain 으로 보내는 이유: Apps Script 는 CORS 사전요청(OPTIONS)에 답하지 않습니다.
+      // 단순 요청으로 보내면 사전요청 없이 바로 통과합니다.
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(syncPayload(mode)),
+      redirect:'follow'
+    });
+    const text = await res.text();
+    let data;
+    try{ data = JSON.parse(text); }
+    catch(e){
+      throw new Error('시트가 JSON 대신 다른 응답을 보냈습니다 (HTTP '+res.status+'). '
+        + '배포할 때 액세스 권한을 "모든 사용자"로 했는지, URL이 /exec 로 끝나는지 확인하세요.');
+    }
+    if(!data.ok) throw new Error(data.error || '시트가 거절했습니다');
+
+    S.lastSync = {at:new Date().toISOString(), ok:true, added:data.added, records:data.records, mode:data.mode};
+    save(); renderSyncInfo();
+    const msg = mode==='replace'
+      ? `시트를 이 기록으로 맞췄습니다 — ${data.records}행`
+      : (data.added ? `시트에 ${data.added}행 올렸습니다` : '시트가 이미 최신입니다');
+    toast(msg);
+    if(quiet) syncBanner('ok', `✅ <b>시트 동기화 완료</b> — ${esc(msg)}`);
+    return data;
+
+  }catch(err){
+    const raw = String(err && err.message || err);
+    const net = /Failed to fetch|NetworkError|load failed/i.test(raw);
+    const msg = net
+      ? '시트에 연결하지 못했습니다. 인터넷 연결, 웹앱 URL, 배포 권한("모든 사용자")을 확인해 주세요.'
+      : raw;
+    S.lastSync = {at:new Date().toISOString(), ok:false, error:msg};
+    save(); renderSyncInfo();
+    syncBanner('err', `⚠️ <b>시트에 올리지 못했습니다.</b> ${esc(msg)}<br>`
+      + '포도알 기록은 이 브라우저에 그대로 남아 있습니다 — 원인을 고친 뒤 <b>설정 → 시트로 올리기</b>를 다시 누르면 됩니다.');
+    toast('시트 올리기 실패 — 위 안내를 확인하세요');
+    return null;
+
+  }finally{ syncing = false; setSyncBusy(false); }
+}
+
+/** 반영 직후 자동 올리기 (켜져 있을 때만) */
+function maybeAutoSync(){
+  if(!S.config.autoSync) return;
+  const c = sheetCfg();
+  if(!c.url || !c.key) return;
+  syncUp('merge', true);
+}
+
+$('#btnSaveSheet').addEventListener('click', ()=>{
+  const url = $('#cfgSheetUrl').value.trim();
+  // 실제 Apps Script 는 늘 https. (http 는 내 컴퓨터에서 시험해 볼 때만 허용)
+  if(url && !/^https:\/\/\S+$/.test(url) && !/^http:\/\/(localhost|127\.0\.0\.1)[:/]/.test(url))
+    return toast('웹앱 URL은 https:// 로 시작해야 합니다');
+  S.config = Object.assign({}, S.config, {
+    sheetUrl: url,
+    sheetKey: $('#cfgSheetKey').value.trim(),
+    autoSync: $('#cfgAutoSync').checked
+  });
+  save(); renderSyncInfo();
+  toast(url && !/\/exec$/.test(url) ? '저장했습니다 — 다만 주소가 /exec 로 끝나지 않습니다' : '저장했습니다');
+});
+
+$('#btnSyncUp').addEventListener('click', ()=>syncUp('merge'));
+
+$('#btnSyncReplace').addEventListener('click', ()=>{
+  if(!confirm('시트의 records 를 이 브라우저 기록으로 통째로 맞춥니다.\n'
+    + '시트에만 있던 인증은 지워집니다. 계속할까요?')) return;
+  syncUp('replace');
+});
+
+$('#btnSyncCheck').addEventListener('click', async ()=>{
+  const c = sheetCfg();
+  if(!c.url) return toast('먼저 웹앱 URL을 저장하세요');
+  setSyncBusy(true); syncBanner(null);
+  try{
+    const res = await fetch(c.url, {method:'GET', redirect:'follow'});
+    const text = await res.text();
+    let d;
+    try{ d = JSON.parse(text); }
+    catch(e){ throw new Error('JSON 이 아닌 응답 (HTTP '+res.status+'). 배포 액세스 권한이 "모든 사용자"인지 확인하세요.'); }
+    if(!d.ok) throw new Error(d.error||'시트가 오류를 돌려줬습니다');
+    let n = 0; for(const k in (d.records||{})) n += Object.keys(d.records[k]).length;
+    syncBanner('ok', `✅ <b>연결됩니다.</b> 시트에 학생 ${(d.students||[]).length}명 · 인증 ${n}행`
+      + (d.updatedAt ? ` · 마지막 올리기 ${esc(new Date(d.updatedAt).toLocaleString('ko-KR'))}` : ' (아직 올린 적 없음)'));
+    toast('연결 확인 완료');
+  }catch(err){
+    const raw = String(err && err.message || err);
+    const net = /Failed to fetch|NetworkError|load failed/i.test(raw);
+    syncBanner('err', `⚠️ <b>조회가 되지 않습니다.</b> `
+      + esc(net ? '주소에 연결하지 못했습니다. URL과 배포 권한("모든 사용자")을 확인해 주세요.' : raw));
+    toast('연결 확인 실패');
+  }finally{ setSyncBusy(false); }
+});
+
+$('#btnStudentLink').addEventListener('click', async ()=>{
+  const c = sheetCfg();
+  if(!c.url) return toast('먼저 웹앱 URL을 저장하세요');
+  let base = 'student.html';
+  try{ base = new URL('student.html', location.href).href; }catch(e){}
+  const link = base + '?api=' + encodeURIComponent(c.url);
+  const ok = await copyText(link);
+  if(!ok) return toast('복사하지 못했습니다');
+  if(location.protocol === 'file:')
+    toast('복사했습니다 — 지금 주소는 이 컴퓨터 안의 파일이라, 학생에게 보내려면 GitHub Pages 같은 곳에 올려야 합니다');
+  else
+    toast('학생 조회 링크를 복사했습니다 — 채팅방에 붙여넣으세요');
+});
+
+/* ───────── 백업 ───────── */
+$('#btnExport').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(S,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `포도알백업-${ymd(new Date())}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('백업 파일을 내려받았습니다');
+});
+$('#btnImport').addEventListener('click', ()=>$('#importFile').click());
+$('#importFile').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const d = JSON.parse(String(fr.result));
+      if(!d || !Array.isArray(d.students)) throw 0;
+      if(!confirm('지금 기록을 덮어씁니다. 계속할까요?')) return;
+      S = d; S.config = Object.assign(blank().config, S.config||{});
+      S.records = S.records||{}; S.imports = S.imports||[]; S.seq = S.seq||(S.students.length+1);
+      save(); animateOnce = true; renderGarden(); renderConfig(); renderRoster(); boot();
+      toast('복원했습니다');
+    }catch(err){ toast('백업 파일이 아닌 것 같습니다'); }
+  };
+  fr.readAsText(f,'UTF-8'); e.target.value='';
+});
+$('#btnReset').addEventListener('click', ()=>{
+  if(!confirm('학생·포도알 기록을 모두 지웁니다. 되돌릴 수 없습니다. 계속할까요?')) return;
+  if(!confirm('정말 전부 지울까요? 먼저 백업을 내보내는 것을 권합니다.')) return;
+  S = blank(); save(); animateOnce = true;
+  renderGarden(); renderRoster(); renderConfig(); boot(); toast('초기화했습니다');
+});
+
+/* ───────── 시작 ───────── */
+function storageOK(){
+  try{ localStorage.setItem('__probe__','1'); localStorage.removeItem('__probe__'); return true; }
+  catch(e){ return false; }
+}
+function boot(){
+  const beads = S.students.reduce((a,s)=>a+beadCount(s.id),0);
+  $('#topSub').textContent = S.students.length
+    ? `학생 ${S.students.length}명 · 포도알 ${beads}개`
+    : '카톡 대화 파일로 공부 인증을 집계합니다';
+
+  if(!storageOK() && !$('#noStore')){
+    const warn = document.createElement('div');
+    warn.id = 'noStore';
+    warn.style.cssText = 'background:color-mix(in srgb,var(--danger) 14%,var(--panel));border:1px solid var(--danger);'
+      + 'color:var(--ink);border-radius:12px;padding:13px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.6';
+    warn.innerHTML = '⚠️ <b>이 환경에서는 기록이 저장되지 않습니다.</b> 창을 닫으면 집계가 사라집니다.<br>'
+      + '이 파일을 컴퓨터에 내려받아 직접 열거나, GitHub Pages 같은 주소에 올려서 사용하세요. '
+      + '지금 작업한 내용이 있다면 <b>설정 → 백업 파일 내보내기</b>로 먼저 저장하세요.';
+    $('nav.tabs').after(warn);
+  }
+}
+boot();
+</script>
+</body>
+</html>

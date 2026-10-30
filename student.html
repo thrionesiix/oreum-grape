@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8b5cf6">
+<title>내 포도송이</title>
+<style>
+:root{
+  --bg:#faf7fb; --panel:#ffffff; --line:#e7e1ec; --line-soft:#f1ecf5;
+  --ink:#2a2233; --ink-mid:#6b6277; --ink-soft:#9b93a6;
+  --grape:#8b5cf6; --grape-deep:#6d3fd6; --grape-light:#c4b2f7;
+  --leaf:#4ca36a; --stem:#8b6b4a;
+  --gold:#e0a419; --danger:#d9534f; --ok:#3f9a5e;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(42,34,51,.05), 0 6px 20px rgba(42,34,51,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17141c; --panel:#1f1b27; --line:#332c3f; --line-soft:#262030;
+    --ink:#f0ecf5; --ink-mid:#b5aec2; --ink-soft:#817a8f;
+    --grape:#a78bfa; --grape-deep:#8b5cf6; --grape-light:#4a3a78;
+    --leaf:#5fb97e; --stem:#a07c55;
+    --gold:#f0b93b; --danger:#f08a86; --ok:#64c285;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17141c; --panel:#1f1b27; --line:#332c3f; --line-soft:#262030;
+  --ink:#f0ecf5; --ink-mid:#b5aec2; --ink-soft:#817a8f;
+  --grape:#a78bfa; --grape-deep:#8b5cf6; --grape-light:#4a3a78;
+  --leaf:#5fb97e; --stem:#a07c55;
+  --gold:#f0b93b; --danger:#f08a86; --ok:#64c285;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%; line-height:1.55;
+}
+
+/* 모바일 우선 — 학생은 거의 폰으로 봅니다 */
+.wrap{max-width:560px; margin:0 auto; padding:16px 14px calc(34px + env(safe-area-inset-bottom))}
+header.top{display:flex; align-items:center; gap:8px; margin-bottom:14px}
+header.top h1{font-size:18px; margin:0; letter-spacing:-.02em; flex:1}
+header.top .who{font-size:13px; color:var(--ink-soft)}
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px 16px; box-shadow:var(--shadow); margin-bottom:14px}
+.card h2{font-size:15px; margin:0 0 4px; letter-spacing:-.01em}
+.card .hint{color:var(--ink-soft); font-size:13px; margin:0 0 14px}
+
+button.btn{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer;
+  padding:10px 16px; border-radius:10px; font-size:14px; font-weight:600; font-family:inherit;
+  transition:.15s; min-height:44px;
+}
+button.btn:active{transform:scale(.98)}
+button.btn.primary{background:var(--grape); border-color:var(--grape); color:#fff}
+button.btn.ghost{border-color:transparent; color:var(--ink-soft); padding:7px 11px; min-height:38px}
+button.btn.sm{padding:7px 12px; font-size:13px; min-height:38px}
+button.btn:disabled{opacity:.45}
+.row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* 이름 고르기 */
+#search{
+  width:100%; font-family:inherit; font-size:16px; padding:12px 14px; margin-bottom:12px;
+  border:1px solid var(--line); border-radius:11px; background:var(--panel); color:var(--ink);
+}
+#search:focus{outline:2px solid var(--grape); outline-offset:-1px}
+.names{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px}
+.names button{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer;
+  border-radius:11px; padding:13px 8px; font-size:15px; font-weight:700; font-family:inherit;
+  letter-spacing:-.01em; min-height:50px; transition:.15s;
+}
+.names button:active{background:var(--line-soft)}
+.names button .mini{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-top:2px; font-variant-numeric:tabular-nums}
+
+/* 내 포도송이 */
+.hero{text-align:center; padding:4px 0 2px}
+.hero svg{display:block; margin:0 auto; overflow:visible; width:min(230px,58vw); height:auto}
+.hero .big{font-size:34px; font-weight:800; letter-spacing:-.03em; margin-top:12px; font-variant-numeric:tabular-nums}
+.hero .big span{font-size:19px; font-weight:700; color:var(--ink-soft)}
+.hero .msg{font-size:14.5px; color:var(--ink-mid); margin-top:6px}
+.hero .msg b{color:var(--grape)}
+.bar{height:9px; border-radius:20px; background:var(--line-soft); overflow:hidden; margin:16px 0 0}
+.bar i{display:block; height:100%; border-radius:20px; background:linear-gradient(90deg,var(--grape-deep),var(--grape)); transition:width .6s cubic-bezier(.3,1,.5,1)}
+/* transform-box:fill-box 가 없으면 SVG <g> 는 그림 전체의 원점을 기준으로 커져서
+   포도알이 왼쪽 위 구석에서 날아오는 것처럼 보입니다. 제자리에서 톡 튀어나오게. */
+.bead{transform-box:fill-box; transform-origin:center}
+.bead.on{animation:pop .45s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{0%{transform:scale(.2); opacity:0}100%{transform:scale(1); opacity:1}}
+@media (prefers-reduced-motion: reduce){ .bead.on{animation:none} }
+
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px}
+.stat{background:var(--line-soft); border-radius:11px; padding:11px 10px; text-align:center}
+.stat .n{font-size:19px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.stat .l{font-size:11.5px; color:var(--ink-soft); margin-top:1px}
+
+.reward{
+  background:color-mix(in srgb,var(--gold) 15%,var(--panel)); border:1px solid var(--gold);
+  border-radius:12px; padding:13px 15px; font-size:14px; margin-top:16px; line-height:1.6;
+}
+
+/* 인증 날짜 */
+.days{display:flex; flex-wrap:wrap; gap:6px}
+.days span{
+  font-size:12.5px; font-weight:600; padding:5px 9px; border-radius:8px;
+  background:var(--line-soft); color:var(--ink-mid); font-variant-numeric:tabular-nums;
+}
+.days span.sun{color:var(--danger)}
+.days span.sat{color:var(--grape)}
+
+/* 랭킹 */
+.rank{display:flex; flex-direction:column; gap:2px}
+.rk{display:flex; align-items:center; gap:10px; padding:9px 2px; border-bottom:1px solid var(--line-soft)}
+.rk:last-child{border-bottom:0}
+.rk.me{background:color-mix(in srgb,var(--grape) 9%,transparent); border-radius:10px; padding-left:9px; padding-right:9px; border-bottom-color:transparent}
+.rk .no{width:26px; flex:0 0 auto; text-align:center; font-size:13px; font-weight:800; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.rk .nm{font-size:14.5px; font-weight:700; letter-spacing:-.01em; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rk .nm em{font-style:normal; font-size:11.5px; font-weight:700; color:var(--grape); margin-left:5px}
+.rk .nm i{font-style:normal; font-size:11px; font-weight:700; color:var(--gold); margin-left:5px}
+.rk .mini{width:74px; flex:0 0 auto}
+.rk .mini i{display:block; height:7px; border-radius:20px; background:var(--line-soft); overflow:hidden; position:relative}
+.rk .mini i b{position:absolute; left:0; top:0; bottom:0; border-radius:20px; background:var(--grape)}
+.rk .ct{width:52px; flex:0 0 auto; text-align:right; font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.rk .ct small{color:var(--ink-soft); font-weight:600}
+.rk.full .ct{color:var(--gold)}
+
+.note{font-size:12.5px; color:var(--ink-mid); background:var(--line-soft); padding:11px 13px; border-radius:10px; margin:12px 0 0; line-height:1.6}
+.err{background:color-mix(in srgb,var(--danger) 13%,var(--panel)); border:1px solid var(--danger)}
+.warn{background:color-mix(in srgb,var(--gold) 14%,var(--panel)); border:1px solid var(--gold)}
+.empty{text-align:center; padding:40px 16px; color:var(--ink-soft)}
+.empty .big{font-size:38px; margin-bottom:10px}
+.foot{text-align:center; font-size:12px; color:var(--ink-soft); margin-top:18px; line-height:1.7}
+.spin{display:inline-block; width:15px; height:15px; border:2px solid var(--grape-light); border-top-color:var(--grape); border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{
+  position:fixed; left:50%; bottom:22px; transform:translate(-50%,80px); opacity:0;
+  background:var(--ink); color:var(--bg); padding:11px 20px; border-radius:30px; font-size:13.5px;
+  font-weight:600; transition:.26s; pointer-events:none; z-index:99; max-width:90vw; text-align:center;
+}
+#toast.show{transform:translate(-50%,0); opacity:1}
+
+@media (min-width:600px){
+  .wrap{max-width:620px; padding:26px 18px 60px}
+  header.top h1{font-size:21px}
+  .card{padding:20px}
+  .hero svg{width:250px}
+  .hero .big{font-size:38px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>🍇 내 포도송이</h1>
+    <span class="who" id="who"></span>
+    <button class="btn ghost sm" id="btnReload" title="새로 불러오기">↻</button>
+  </header>
+
+  <div id="app">
+    <div class="card"><div class="empty"><div class="big">🍇</div><span class="spin"></span> 불러오는 중…</div></div>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+/* ───────────────────────────────────────────────────────────────
+   학생용 조회 페이지 — 읽기만 합니다.
+   선생님이 Apps Script 로 올린 현황(doGet)을 받아서 보여 줍니다.
+
+   주소 뒤에 ?api=<웹앱URL> 을 붙여서 열면 그 주소를 기억합니다.
+   (선생님 페이지 → 설정 → "학생 조회 링크 복사" 버튼이 그 링크를 만들어 줍니다)
+
+   매번 링크를 쓰지 않고 이 파일 자체에 박아 두고 싶으면 아래 한 줄만 고치세요.
+   ─────────────────────────────────────────────────────────────── */
+const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxm9rqC7Gn-PMH9yAUBXefiIUGRtOQHRwhoxo3YhWsJPwq0MydudIxn_ACXwA_ydlEMJw/exec';
+
+const LS_API = 'oreum-grape-api';
+const LS_ME  = 'oreum-grape-me';
+const LS_CACHE = 'oreum-grape-cache';
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+
+/* ───────── API 주소 ─────────
+   ?api= 로 들어온 주소를 바로 저장하지는 않습니다.
+   잘못된 링크를 한 번 눌렀다고 해서 잘 쓰던 주소가 날아가면 안 되니까,
+   실제로 현황을 받아 온 뒤에 저장합니다. */
+function apiUrl(){
+  const q = (new URLSearchParams(location.search).get('api') || '').trim();
+  return q || (lsGet(LS_API) || DEFAULT_API || '').trim();
+}
+
+/* ───────── 포도송이 그림 (선생님 페이지와 같은 로직) ───────── */
+function bunchRows(total){
+  const rows = []; let rem = total, wide = true;
+  while(rem > 0){
+    if(rem <= 4){ rows.push(rem); break; }
+    const w = wide ? 4 : 3;
+    rows.push(w); rem -= w; wide = !wide;
+  }
+  return rows;
+}
+function bunchSVG(count, total, animate){
+  const rows = bunchRows(total);
+  const R = 10, GX = 23, GY = 17, TOP = 22;
+  const W = 4*GX + 14, H = TOP + rows.length*GY + R + 6;
+  let out = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-label="포도알 ${count} / ${total}">`;
+  out += `<path d="M${W/2} ${TOP-4} C ${W/2-1} 12, ${W/2} 8, ${W/2+1} 3" stroke="var(--stem)" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  out += `<path d="M${W/2+1} 7 C ${W/2+13} -1, ${W/2+22} 4, ${W/2+16} 12 C ${W/2+11} 18, ${W/2+4} 15, ${W/2+1} 7 Z" fill="var(--leaf)"/>`;
+  let k = 0;
+  rows.forEach((w, ri)=>{
+    const startX = (W - (w-1)*GX)/2;
+    for(let i=0;i<w;i++,k++){
+      const cx = startX + i*GX, cy = TOP + ri*GY + R;
+      const on = k < count;
+      if(on){
+        out += `<g class="bead${animate?' on':''}" style="${animate?`animation-delay:${Math.min(k*30,760)}ms`:''}">`
+             + `<circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--grape)"/>`
+             + `<circle cx="${cx-3.2}" cy="${cy-3.4}" r="2.6" fill="#fff" opacity=".4"/></g>`;
+      }else{
+        out += `<circle class="bead" cx="${cx}" cy="${cy}" r="${R-1}" fill="none" stroke="var(--grape-light)" stroke-width="1.6" stroke-dasharray="2.6 2.6"/>`;
+      }
+    }
+  });
+  return out + '</svg>';
+}
+
+/* ───────── 데이터 ───────── */
+let D = null;      // {config, students, records}
+let stale = false; // 캐시로 보여 주는 중인가
+
+function beadDates(id){ return Object.keys((D.records||{})[id] || {}).sort(); }
+function beadCount(id){ return beadDates(id).length; }
+
+/** 선생님 페이지와 같은 계산 — 한 송이를 채우면 다음 송이를 새로 시작 */
+function progress(st){
+  const total = (D.config && D.config.beadsPerBunch) || 20;
+  const c = beadCount(st.id);
+  const earned = Math.floor(c/total);
+  const rewarded = st.rewarded||0;
+  const pending = Math.max(0, earned-rewarded);
+  const inBunch = c - earned*total;
+  return {c, total, earned, rewarded, pending, display: pending>0 ? total : inBunch};
+}
+
+async function loadData(manual){
+  const url = apiUrl();
+  if(!url){ renderNoApi(); return; }
+
+  if(manual){ $('#btnReload').disabled = true; $('#btnReload').textContent = '…'; }
+  try{
+    const sep = url.indexOf('?')<0 ? '?' : '&';
+    const res = await fetch(url + sep + 't=' + Date.now(), {method:'GET', redirect:'follow'});
+    const text = await res.text();
+    let d;
+    try{ d = JSON.parse(text); }
+    catch(e){ throw new Error('주소가 현황을 돌려주지 않았습니다 (HTTP '+res.status+').'); }
+    if(!d.ok) throw new Error(d.error || '현황을 읽지 못했습니다');
+
+    D = d; stale = false;
+    lsSet(LS_API, url);                       // 통한 주소만 기억한다
+    lsSet(LS_CACHE, JSON.stringify({at:new Date().toISOString(), d}));
+    render();
+    if(manual) toast('새로 불러왔습니다');
+
+  }catch(err){
+    const raw = String(err && err.message || err);
+    const net = /Failed to fetch|NetworkError|load failed/i.test(raw);
+    const msg = net ? '선생님 시트에 연결하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.' : raw;
+
+    // 지난번에 받아 둔 내용이 있으면 그걸로라도 보여 줍니다
+    let cache = null;
+    try{ cache = JSON.parse(lsGet(LS_CACHE)||'null'); }catch(e){}
+    if(cache && cache.d){
+      D = cache.d; stale = true; D.cachedAt = cache.at;
+      render(msg);
+    }else{
+      renderError(msg);
+    }
+  }finally{
+    if(manual){ $('#btnReload').disabled = false; $('#btnReload').textContent = '↻'; }
+  }
+}
+
+/* ───────── 화면 ───────── */
+function renderNoApi(){
+  $('#app').innerHTML = `<div class="card">
+    <h2>조회 주소가 없습니다</h2>
+    <p class="hint">선생님이 보내 주신 <b>포도알 조회 링크</b>로 들어와야 현황을 볼 수 있습니다.</p>
+    <p class="note">선생님께 "포도알 조회 링크 보내주세요" 라고 말씀해 주세요.<br>
+    링크는 <b>student.html?api=...</b> 모양입니다. 한 번 들어오면 이 기기가 주소를 기억합니다.</p>
+  </div>`;
+  $('#foot').textContent = '';
+}
+function renderError(msg){
+  $('#app').innerHTML = `<div class="card">
+    <h2>불러오지 못했습니다</h2>
+    <p class="note err">${esc(msg)}</p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" id="btnRetry">다시 시도</button>
+      <button class="btn sm" id="btnForget">주소 지우기</button>
+    </div>
+  </div>`;
+  $('#btnRetry').addEventListener('click', ()=>loadData(true));
+  $('#btnForget').addEventListener('click', ()=>{
+    try{ localStorage.removeItem(LS_API); }catch(e){}
+    location.search = '';
+  });
+  $('#foot').textContent = '';
+}
+
+function me(){
+  const id = lsGet(LS_ME);
+  return (D.students||[]).find(s=>s.id===id) || null;
+}
+
+function render(warnMsg){
+  if(!D || !Array.isArray(D.students)) return renderError('현황이 비어 있습니다');
+  const mine = me();
+  $('#who').textContent = mine ? mine.name : '';
+  let html = '';
+  if(warnMsg) html += `<p class="note warn" style="margin:0 0 14px">⚠️ ${esc(warnMsg)}<br>
+    아래는 ${D.cachedAt ? esc(new Date(D.cachedAt).toLocaleString('ko-KR')) : '지난번'}에 받아 둔 내용입니다.</p>`;
+  html += mine ? myCard(mine) : pickCard();
+  html += rankCard(mine);
+  $('#app').innerHTML = html;
+  wire(mine);
+
+  const parts = [];
+  if(D.updatedAt) parts.push('선생님이 올린 시각 ' + new Date(D.updatedAt).toLocaleString('ko-KR'));
+  parts.push('인증은 선생님이 채팅방 기록을 모아서 반영합니다 — 올린 즉시 바뀌지는 않아요.');
+  $('#foot').innerHTML = parts.map(esc).join('<br>');
+}
+
+/* 이름 고르기 */
+function pickCard(){
+  const list = (D.students||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+  if(!list.length){
+    return `<div class="card"><div class="empty"><div class="big">🍇</div>아직 등록된 학생이 없습니다.<br>선생님이 명단을 올리면 보입니다.</div></div>`;
+  }
+  return `<div class="card">
+    <h2>이름을 눌러 주세요</h2>
+    <p class="hint">한 번 고르면 이 기기가 기억합니다. 나중에 바꿀 수도 있어요.</p>
+    ${list.length>12 ? `<input type="text" id="search" placeholder="이름 검색" autocomplete="off">` : ''}
+    <div class="names" id="names">
+      ${list.map(s=>{
+        const p = progress(s);
+        return `<button data-pick="${esc(s.id)}" data-name="${esc(s.name)}">${esc(s.name)}
+          <span class="mini">${p.display}/${p.total}</span></button>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* 내 포도송이 */
+function myCard(st){
+  const p = progress(st);
+  const left = Math.max(0, p.total - p.display);
+  const dates = beadDates(st.id);
+  const rec = (D.records||{})[st.id] || {};
+  const today = ymd(new Date());
+  const doneToday = !!rec[today];
+
+  let msg;
+  if(p.pending > 0) msg = `<b>한 송이 완성!</b> 선생님께 보상 받아가세요 🎁`;
+  else if(left === 0) msg = `<b>한 송이 완성!</b>`;
+  else if(left <= 3) msg = `보상까지 <b>${left}알</b> — 거의 다 왔어요!`;
+  else msg = `보상까지 <b>${left}알</b> 남았어요`;
+
+  const recent = dates.slice(-28).reverse();
+
+  return `<div class="card">
+    <div class="row" style="margin-bottom:2px">
+      <h2 style="margin:0; flex:1">${esc(st.name)}</h2>
+      <button class="btn ghost sm" id="btnChange">이름 바꾸기</button>
+    </div>
+    <div class="hero">
+      ${bunchSVG(p.display, p.total, true)}
+      <div class="big">${p.display}<span> / ${p.total}알</span></div>
+      <div class="msg">${msg}</div>
+      <div class="bar"><i style="width:${Math.round(p.display/p.total*100)}%"></i></div>
+    </div>
+    ${p.pending ? `<div class="reward">🎁 <b>${p.pending>1?p.pending+'송이 ':''}보상 대기 중</b> — 선생님이 확인하시면 지급해 주실 거예요. 새 송이는 그다음에 시작됩니다.</div>` : ''}
+    <div class="stats">
+      <div class="stat"><div class="n">${p.c}</div><div class="l">누적 포도알</div></div>
+      <div class="stat"><div class="n">${p.rewarded}</div><div class="l">받은 보상</div></div>
+      <div class="stat"><div class="n" style="color:${doneToday?'var(--ok)':'var(--ink-soft)'}">${doneToday?'완료':'아직'}</div><div class="l">오늘 인증</div></div>
+    </div>
+    <p class="note" style="margin-top:14px">${
+      doneToday ? '오늘 인증이 들어왔습니다. 잘했어요! 👏'
+                : '오늘 인증이 아직 없어요. 공부 사진을 채팅방에 올리면 1알이 채워집니다. (하루 1알)'
+    }</p>
+  </div>
+
+  <div class="card">
+    <h2>인증한 날 ${dates.length}일</h2>
+    <p class="hint">${dates.length ? `최근 ${recent.length}일${dates.length>recent.length?` (전체 ${dates.length}일 중)`:''}` : '아직 인증 기록이 없습니다.'}</p>
+    ${recent.length ? `<div class="days">${recent.map(d=>{
+      const dt = new Date(d+'T00:00:00');
+      const wd = ['일','월','화','수','목','금','토'][dt.getDay()];
+      const cls = dt.getDay()===0?' sun':dt.getDay()===6?' sat':'';
+      const at = (rec[d]&&rec[d].at) ? ' '+rec[d].at : '';
+      return `<span class="${cls.trim()}" title="${esc(d+at)}">${d.slice(5).replace('-','.')} ${wd}</span>`;
+    }).join('')}</div>` : `<div class="empty" style="padding:24px 10px">채팅방에 공부 사진을 올려서 첫 알을 채워 보세요 🍇</div>`}
+  </div>`;
+}
+
+/* 전체 랭킹 — 순서와 숫자를 똑같이 '지금까지 모은 알(누적)' 로 맞춘다.
+   막대는 지금 송이가 얼마나 찼는지를 보여 준다. */
+function rankCard(mine){
+  const list = (D.students||[]).slice()
+    .sort((a,b)=>beadCount(b.id)-beadCount(a.id) || a.name.localeCompare(b.name,'ko'));
+  if(!list.length) return '';
+  const medal = ['🥇','🥈','🥉'];
+  const sum = list.reduce((a,s)=>a+beadCount(s.id),0);
+  return `<div class="card">
+    <h2>전체 포도밭</h2>
+    <p class="hint">같이 하는 친구들 ${list.length}명 · 다 같이 모은 알 ${sum}개</p>
+    <div class="rank">
+      ${list.map((s,i)=>{
+        const p = progress(s);
+        const isMe = mine && s.id===mine.id;
+        return `<div class="rk${isMe?' me':''}${p.display>=p.total?' full':''}">
+          <div class="no">${medal[i]||(i+1)}</div>
+          <div class="nm">${esc(s.name)}${isMe?'<em>나</em>':''}${p.earned?`<i>🍇${p.earned}</i>`:''}</div>
+          <div class="mini"><i><b style="width:${Math.round(p.display/p.total*100)}%"></b></i></div>
+          <div class="ct">${p.c}<small>알</small></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <p class="note">숫자는 <b>지금까지 모은 알</b>, 막대는 <b>지금 송이</b>가 얼마나 찼는지입니다.
+    한 송이(${(D.config&&D.config.beadsPerBunch)||20}알)를 채우면 보상을 받고 새 송이를 시작해요 — 🍇 표시는 완성한 송이 수입니다.</p>
+  </div>`;
+}
+
+/* 버튼 연결 */
+function wire(mine){
+  $$('[data-pick]').forEach(b=>b.addEventListener('click', ()=>{
+    lsSet(LS_ME, b.dataset.pick);
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+    toast(b.dataset.name + ' 님, 환영해요 🍇');
+  }));
+  const sb = $('#search');
+  if(sb) sb.addEventListener('input', ()=>{
+    const q = sb.value.trim();
+    $$('#names button').forEach(b=>{ b.hidden = q && !b.dataset.name.includes(q); });
+  });
+  const ch = $('#btnChange');
+  if(ch) ch.addEventListener('click', ()=>{
+    try{ localStorage.removeItem(LS_ME); }catch(e){}
+    render(); window.scrollTo({top:0, behavior:'smooth'});
+  });
+}
+
+$('#btnReload').addEventListener('click', ()=>loadData(true));
+loadData(false);
+</script>
+</body>
+</html>
